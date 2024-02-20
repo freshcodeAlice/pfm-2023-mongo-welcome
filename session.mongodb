@@ -1,1 +1,160 @@
 show collections;
+
+// Заінсертити три об'єкти в колекцію з довільними полями та значеннями
+
+
+db.students.insertOne({
+    name: 'A',
+    b: true
+});
+
+
+db.students.insertOne({
+});
+
+
+db.students.find();
+
+
+db.students.insertOne({
+    name: 'user',
+    phones: [{
+        tel: 'i4y32iy23'
+    }, {
+        num: 43234234234
+    }],
+    orders: {
+        number: 1,
+        products: 'Phones'
+    }
+});
+
+
+db.items.insertMany([
+    { "item": "journal", "qty": 25, "size": { "h": 14, "w": 21, "uom": "cm" }, "status": "A" },
+    { "item": "notebook", "qty": 50, "size": { "h": 8.5, "w": 11, "uom": "in" }, "status": "A" },
+    { "item": "paper", "qty": 100, "size": { "h": 8.5, "w": 11, "uom": "in" }, "status": "D" },
+    { "item": "planner", "qty": 75, "size": { "h": 22.85, "w": 30, "uom": "cm" }, "status": "D" },
+    { "item": "postcard", "qty": 45, "size": { "h": 10, "w": 15.25, "uom": "cm" }, "status": "A" }
+]);
+
+
+db.items.find();
+// SELECT * FROM items;
+
+
+db.items.find({
+    status: 'A'
+});
+// SELECT * FROM items WHERE "status" = 'A';
+
+
+db.items.find({
+    status: {
+        $in: ['A', 'D']
+    }
+});
+// SELECT * FROM items WHERE "status" IN ('A', 'D');
+
+
+db.items.find({
+    qty: {
+        $gt: 40
+    }
+});
+///Знайти всі айтеми, в яких qty <=50
+
+
+db.items.find({
+    qty: {
+        $lte: 50
+    }
+});
+
+/// OR
+
+db.items.find({
+        $or: [{
+            status: 'A'
+        }, {
+            qty: {
+                $gte: 50
+            }
+        }]
+});
+
+// SELECT * FROM items WHERE "status" = 'A' OR "qty" >= 50;
+
+
+/// Таска: отримати всіх, в кого size: {h} >=10
+
+db.items.find({
+    "size.h": {
+        $gt: 10
+    }
+});
+
+
+
+
+db.items.find({
+    item: /^p/
+});
+///SELECT * FROM items WHERE item LIKE 'p%';
+
+
+// Знайти всіх студентів, на ім'я John
+
+
+db.students.find({
+    firstName: 'John'
+});
+
+db.students.find();
+
+
+db.students.find({
+    firstName: {
+        $exists: true
+    }
+});
+
+//and
+db.students.find({
+    firstName: {
+        $exists: true
+    },
+    age: {
+        $exists: true
+    }
+});
+
+// те саме
+db.students.find({
+    $and: [ 
+        {
+        firstName: {
+            $exists: true
+        }
+        },
+        {
+        age: {
+            $exists: true
+        }
+}]
+});
+
+
+// Знайти студентів, у яких є вік і ім'я починається на J
+
+db.students.find({
+    $and: [ 
+        {
+        firstName: /^J/
+        },
+        {
+        age: {
+            $exists: true
+        }
+    }]
+});
