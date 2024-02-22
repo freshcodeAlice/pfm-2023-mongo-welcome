@@ -267,3 +267,43 @@ db.inventory.updateMany({
 });
 
 db.inventory.find();
+
+/// delete
+
+db.inventory.deleteMany({
+    status: 'error'
+});
+
+db.inventory.deleteMany({
+    "size.uom": 'in'
+});
+
+db.students.find();
+
+db.students.deleteMany({
+    firstName: {
+        $exists: false
+    }
+});
+
+
+db.students.deleteMany({})
+
+/*
+Видалити всі об'єкти з колекції inventory, в яких (статус error) або (статус done і при цьому qty >= 50)
+
+*/
+
+db.inventory.deleteMany({
+    $or: [{
+        status: 'error'
+    }, {
+        $and: [{
+            status: 'done'
+        }, {
+            qty: {
+                $gte: 50
+            }
+        }]
+    }]
+});
