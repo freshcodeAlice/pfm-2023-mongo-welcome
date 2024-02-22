@@ -307,3 +307,10 @@ db.inventory.deleteMany({
         }]
     }]
 });
+
+
+db.students.insertMany([{
+    firstName: 'A'
+}, {
+    firstName: 20
+}]);

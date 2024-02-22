@@ -1,0 +1,127 @@
+// Окрім просто створення колекції шляхом інсерта в неї документів, ми можемо створювати колекцію методом
+//db.createCollection(ім'яКолекції, опції)
+//де опції - об'єкт з налаштуваннями колекції включно з валідатором
+
+// Валідація відбувається на вставці та/або оновленні документа
+
+//  https://www.mongodb.com/docs/manual/reference/operator/query/jsonSchema/#mongodb-query-op.-jsonSchema
+ 
+db.createCollection('phones', {
+    validator: {
+        $jsonSchema: {
+            required: ['model', 'brand'],
+            properties: {
+                model: {
+                   bsonType: "string",
+                   description: 'must be a string and is required' 
+                },
+                brand: {
+                     bsonType: "string",
+                    description: 'must be a string and is required' 
+                },
+                color: {
+                   enum: ['green', 'red', 'blue', 'black']
+                },
+                accumVolume: {
+                    bsonType: 'double'
+                },
+                proc: {
+                    bsonType: 'object',
+                    required: ['brand', 'kernelQty'],
+                    properties: {
+                        brand: {
+                            bsonType: 'string'
+                        },
+                        kernelQty: {
+                            bsonType: 'int'
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+});
+//    validationLevel: off (ніколи), strict(на вставку і оновлення - дефолтне), moderate (на вставку, але оновлюються тільки валідні документу)
+// validationAction: error (def. - помилка, вставка не відбувається), warn - попередження про валідацію, але вставка відбувається
+
+/*
+Phones
+*- model
+*- brand
+- color
+- accumVolume
+- proc
+    {
+        brand,
+        kernelQty
+    }
+
+
+*/
+
+
+db.phones.insertOne({
+    brand: 'iPhone',
+    model: 5
+});
+
+
+/*
+Дропнути колекцію users і описати нову, використовуючи валідацію
+
+Юзер
+*- firstName: string
+*- lastName: string,
+-birthday: date,
+*-email: string,
+- gender: string,
+- address: {
+    * city: string,
+    * street: string,
+    * house: int
+}
+
+
+*/
+
+
+db.createCollection('users', {
+    validator: {
+        $jsonSchema: {
+            required: ['firstName', 'lastName', 'email'],
+            properties: {
+                firstName: {
+                    bsonType: 'string'
+                },
+                lastName: {
+                    bsonType: 'string'
+                },
+                email: {
+                    bsonType: 'string'
+                }, 
+                birthday: {
+                    bsonType: 'date'
+                },
+                gender: {
+                    bsonType: 'string'
+                },
+                address: {
+                    bsonType: 'object',
+                    required: ['city', 'street', 'house'],
+                    properties: {
+                        city: {
+                            bsonType: 'string'
+                        },
+                        street: {
+                            bsonType: 'string'
+                        },
+                        house: {
+                            bsonType: 'int'
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
