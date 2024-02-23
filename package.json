@@ -1,0 +1,24 @@
+{
+  "name": "pfm-2023-mongo-welcome",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/freshcodeAlice/pfm-2023-mongo-welcome.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/freshcodeAlice/pfm-2023-mongo-welcome/issues"
+  },
+  "homepage": "https://github.com/freshcodeAlice/pfm-2023-mongo-welcome#readme",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.2.0"
+  }
+}

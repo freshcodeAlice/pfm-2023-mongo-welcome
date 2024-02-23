@@ -314,3 +314,6 @@ db.students.insertMany([{
 }, {
     firstName: 20
 }]);
+
+
+db;
