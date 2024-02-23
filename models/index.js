@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-//const Cat = require('./Cat');
+const Cat = require('./Cat');
+const Owner = require('./Owner');
 const db = require('../configs/mConfig.json');
 
 const CONFIG = db[process.env.NODE_ENV || "development"];
@@ -15,6 +16,6 @@ mongoose.connect(url)
     process.exit(1);
 })
 
-// module.exports = {
-//     Cat
-// }
+module.exports = {
+    Cat, Owner
+}
