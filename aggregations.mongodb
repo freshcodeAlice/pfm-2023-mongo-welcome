@@ -215,3 +215,167 @@ db.products.aggregate([{
 2. Порахувати кількість студентів в кожній групі
 
 */
+db.students.drop();
+
+db.createCollection('students', {
+validator: {
+    $jsonSchema: {
+        bsonType: 'object',
+        required: ['firstName', 'lastName', 'email'],
+        properties: {
+            firstName: {
+                bsonType:'string'
+            },
+            lastName: {
+                bsonType: 'string'
+            },
+            email: {
+                bsonType: 'string'
+            },
+            birthdate: {
+                bsonType: 'date'
+            },
+            groupId: {
+                bsonType: 'objectId'
+            }
+        }
+    }
+}
+});
+
+
+db.createCollection('groups', {
+    validator: {
+        $jsonSchema: {
+            bsonType: 'object',
+            required: ['name'],
+            properties: {
+                name: {
+                    bsonType: 'string'
+                },
+                curator: {
+                    bsonType: 'string'
+                }
+            }
+        }
+    }
+});
+
+db.groups.insertMany([
+    {
+        name: 'pfm-2023',
+    curator: 'Alice'
+    },
+    {
+        name: 'fm2022-1',
+        curator: 'Vadim'
+    }
+]);
+
+//65dc576b54184f603a3c0328
+//65dc576b54184f603a3c0329
+
+
+db.students.insertMany([{
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'joe@fdswqr.edqw',
+    groupId: new ObjectId('65dc576b54184f603a3c0328')
+}, {
+    firstName: 'Jane',
+    lastName: 'Snow',
+    email: 'joe@fdswqr.edqw',
+    groupId: new ObjectId('65dc576b54184f603a3c0328')
+},
+{
+    firstName: 'Kane',
+    lastName: 'Saw',
+    email: 'joe@fdswqr.edqw',
+    groupId: new ObjectId('65dc576b54184f603a3c0328')
+},
+{
+    firstName: 'Kras',
+    lastName: 'Mon',
+    email: 'joe@fdswqr.edqw',
+    groupId: new ObjectId('65dc576b54184f603a3c0328')
+},{
+    firstName: 'Kres',
+    lastName: 'Mnew',
+    email: 'joe@fdswqr.edqw',
+    groupId: new ObjectId('65dc576b54184f603a3c0329')
+},
+{
+    firstName: 'Las',
+    lastName: 'Waw',
+    email: 'joe@fdswqr.edqw',
+    groupId: new ObjectId('65dc576b54184f603a3c0329')
+}]);
+
+//1
+db.students.aggregate([{
+
+    $lookup: {
+      from: 'groups',
+      localField: 'groupId',
+      foreignField: '_id',
+      as: 'group'
+    }
+}, {
+    $unwind: "$group"
+}, {
+    $unset: "groupId"
+}]);
+
+
+//2
+db.students.aggregate([{
+
+    $lookup: {
+      from: 'groups',
+      localField: 'groupId',
+      foreignField: '_id',
+      as: 'group'
+    }
+}, {
+    $unwind: "$group"
+}, {
+    $unset: "groupId"
+}, {
+    $group: {
+      _id: "$group.name",
+        studentsCount: {
+            $sum: 1
+        }
+    }
+}]);
+
+
+
+/// Задача: витягнути групи з інформацією про студентів
+
+
+/// отримати всю інформацію про групу, в якій має бути поле 
+// students: [{}, {}, {}]
+
+db.groups.aggregate([{
+    $lookup: {
+      from: 'students',
+      localField: '_id',
+      foreignField: 'groupId',
+      as: 'students'
+    }
+}, {
+    $unset: 'students.groupId'
+}]);
+
+
+/// Отримати всю інфу про виробника + товари, які ним зроблені
+
+db.manufacturers.aggregate([{
+    $lookup: {
+      from: 'products',
+      localField: '_id',
+      foreignField: 'manufacturerId',
+      as: 'products'
+    }
+}]);
