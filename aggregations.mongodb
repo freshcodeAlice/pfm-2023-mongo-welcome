@@ -1,0 +1,217 @@
+db;
+
+/*
+
+Конвеєрна агрегація в Mongo - це багатоетапне перетворення вхідних даних, щоб отримати результат
+
+Робиться за допомогою методу aggregate(), який приймає масив етапів конвейера
+
+*/
+
+db.manufacturer.drop();
+
+db.createCollection('manufacturers', {
+    validator: {
+        $jsonSchema: {
+            bsonType: 'object',
+            required: ['name'],
+            properties: {
+                name: {
+                    bsonType: 'string'
+                },
+                address: {
+                    bsonType: 'object',
+                    required: ['country', 'city']
+                }
+            }
+        }
+    }
+});
+
+db.manufacturers.insertMany([{
+    name: 'Apple',
+    address: {
+        country: 'USA',
+        city: 'LA'
+    }
+}, {
+    name: 'Sony',
+    address: {
+        country: 'Japan',
+        city: 'Tokio'
+    }
+}, {
+    name: 'Xiaomu'
+}]);
+
+db.products.drop();
+
+db.createCollection('products', {
+    validator: {
+        $jsonSchema: {
+            bsonType: 'object',
+            required: ['name', 'price', 'amount'],
+            properties: {
+                manufacturerId: {
+                    bsonType: 'objectId'
+                },
+                name: {
+                    bsonType: 'string'
+                },
+                expiredDate: {
+                    bsonType: 'date'
+                },
+                amount: {
+                    bsonType: 'int'
+                },
+                price: {
+                    bsonType: 'double'
+                }
+            }
+        }
+    }
+});
+
+db.products.insertMany([{
+    name: 'iPhone',
+    price: 222.12,
+    amount: 5,
+    manufacturerId: new ObjectId('65dc3bfab78072ce6c198003')
+}]);
+
+db.products.insertOne({
+    name: 'Unknown product',
+    price: 333.33,
+    amount: 1,
+    manufacturerId: new ObjectId()
+});
+
+
+db.products.insertMany([
+    {
+        name: 'A10',
+        price: 23411.32,
+        amount: 2,
+        manufacturerId: new ObjectId('65dc3bfab78072ce6c198004')
+    },
+    {
+        name: 'B2',
+        price: 2312.32,
+        amount: 5,
+        manufacturerId: new ObjectId('65dc3bfab78072ce6c198004')
+    },
+    {
+    name: 'i6',
+    price: 33333.12,
+    amount: 23,
+    manufacturerId: new ObjectId('65dc3bfab78072ce6c198003')
+}
+]);
+
+// Задача: отримати інфу про товари разом з їхнім виробником
+
+// db.products.aggregate([{
+//     /**
+//      * from: звідки тягнем
+//      * localField: поле в поточній колекції, за яким має бути зв'язок
+//      * foreignField: поле в другій колекції, яке має відповідати
+//      * as: аліас для поля, який ми хочемо використати
+//      */
+//     $lookup: {
+//       from: collection,
+//       localField: field,
+//       foreignField: field,
+//       as: result
+//     }
+// }]);
+
+
+/*
+SELECT * 
+FROM products
+LEFT JOIN secondTable
+ON products.localField = secondTable.foreignField
+
+
+*/
+
+
+db.products.aggregate([{
+    $lookup: {
+      from: 'manufacturers',
+      localField: 'manufacturerId',
+      foreignField: '_id',
+      as: 'manuf'
+    }
+}, {
+    $unwind: '$manuf'
+}, {
+   $unset: 'manufacturerId'
+}]);
+
+// Задача: порахувати кількість товарів для кожного виробника
+
+db.products.aggregate([{
+    $lookup: {
+      from: 'manufacturers',
+      localField: 'manufacturerId',
+      foreignField: '_id',
+      as: 'manuf'
+    }
+}, {
+    $unwind: '$manuf'
+}, {
+   $unset: 'manufacturerId'
+}, {
+    $group: {
+      _id: "$manuf.name",
+      countProducts: {
+       $sum: 1
+      }
+    }
+}]);
+
+
+
+/// Сортування
+
+// 1 - ASC, -1 - DESC
+
+db.products.aggregate([{
+    $lookup: {
+      from: 'manufacturers',
+      localField: 'manufacturerId',
+      foreignField: '_id',
+      as: 'manuf'
+    }
+}, {
+    $unwind: '$manuf'
+}, {
+   $unset: 'manufacturerId'
+}, {
+    $sort: {
+        price: 1
+    }
+}]);
+
+
+/*
+Створити колекції 
+
+Студенти
+*- ім'я
+*- прізвище
+*- мейл
+- дата народження
+
+Група
+* - назву
+- ім'я куратора
+
+Студенти діляться на групи. В групі багато студентів, 1 студент належить тільки до однієї групи
+
+Таска: створити колекції, заінсертити десяток студентів, в різні групи.
+1. Вивести студентів з інформацією про групи.
+2. Порахувати кількість студентів в кожній групі
+
+*/
