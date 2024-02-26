@@ -2,8 +2,8 @@ POST http://localhost:5000/api/cats/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Tuzik",
-    "age": 2,
+    "name": "Murka",
+    "age": 3,
     "color": "white",
-    "nickname": "Shoes eater"
+    "owner": "65dc61121f8a4ad41cf0273b"
 }
