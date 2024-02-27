@@ -49,9 +49,20 @@ module.exports.deleteOne = async (req, res, next) => {
     }
 }
 
-
-/*
-Дописати методи контроллера та прописати маршрутизацію для них
-і веб-сервер, який приймає запити
-
-*/
+module.exports.addCatToOwner = async (req, res, next) => {
+    try {
+        const {params: {catId, ownerId}} = req;
+        // додати коту інфу про власника
+        const cat = await Cat.findOneAndUpdate({_id: catId}, {owner: ownerId}, {returnDocument: 'after'});
+        // додати власнику інфу про кота
+        // Крок 1: знайти екземпляр моделі Власника 
+        const owner = await Owner.findById(ownerId);
+        // Крок 2: Запушити до масиву котів catId
+        owner.cats.push(catId);
+        // Крок 3: викликати метод save() для збереження цих змін у БД
+        await owner.save()
+        res.status(200).send({data: cat}) 
+    } catch(error) {
+        next(error)
+    }
+}
